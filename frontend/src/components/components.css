@@ -1,0 +1,134 @@
+.glass-card {
+  border-radius: 20px;
+  padding: 24px;
+}
+
+/* StatCard */
+.stat-card {
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+}
+.stat-card-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.stat-card-label {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.stat-card-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.stat-card-trend.up {
+  color: var(--color-success);
+  background: rgba(22, 163, 74, 0.12);
+}
+.stat-card-trend.down {
+  color: var(--color-danger);
+  background: rgba(220, 38, 38, 0.12);
+}
+
+/* ScoreGauge */
+.score-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.score-gauge-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.score-gauge-value {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+}
+
+/* SkillBar */
+.skill-bar {
+  margin-bottom: 16px;
+}
+.skill-bar-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.skill-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-200);
+  overflow: hidden;
+}
+.skill-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* EmptyState */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 56px 24px;
+  color: var(--text-secondary);
+}
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-100);
+  color: var(--color-primary);
+  margin-bottom: 18px;
+}
+.empty-state-message {
+  font-size: 15px;
+  margin-bottom: 18px;
+  max-width: 360px;
+}
+
+/* Keyword / tag cloud */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}

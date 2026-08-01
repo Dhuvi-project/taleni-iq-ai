@@ -1,0 +1,85 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: talentiq-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-talentiq}
+      POSTGRES_USER: ${POSTGRES_USER:-talentiq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-talentiq}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-talentiq} -d ${POSTGRES_DB:-talentiq}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - talentiq-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: talentiq-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-talentiq}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-talentiq}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-talentiq}
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-long-random-string-in-production-please}
+      APP_CORS_ORIGIN: ${APP_CORS_ORIGIN:-http://localhost:5173,http://localhost}
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+    ports:
+      - "8080:8080"
+    volumes:
+      - resume-uploads:/app/uploads
+    networks:
+      - talentiq-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: talentiq-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - talentiq-net
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: talentiq-pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@talentiq.ai}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - talentiq-net
+
+networks:
+  talentiq-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  pgadmin-data:
+  resume-uploads:
