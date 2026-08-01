@@ -14,4 +14,8 @@ COPY --from=build /build/target/talentiq-backend.jar /app/app.jar
 RUN mkdir -p /app/uploads && chown -R talentiq:talentiq /app
 USER talentiq
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# -XX:MaxRAMPercentage caps the heap relative to the container's actual memory limit (Render's
+# free tier gives 512MB) instead of the JVM's default heap sizing, which can otherwise size the
+# heap against host memory it can see but doesn't actually have, leading to OOM-kills and a
+# restart crash-loop.
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=70.0", "-XX:MaxMetaspaceSize=128m", "-jar", "/app/app.jar"]
