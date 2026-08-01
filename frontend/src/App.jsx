@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppShell from './components/AppShell';
 
+import { PageLoader } from './components/Spinner';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import UploadResume from './pages/UploadResume';
@@ -23,7 +24,10 @@ function Shell({ children }) {
 }
 
 function RootRedirect() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <PageLoader />;
+  }
   return <Navigate to={user ? '/dashboard' : '/login'} replace />;
 }
 

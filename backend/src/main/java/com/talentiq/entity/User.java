@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -19,14 +20,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** The Supabase Auth user id ({@code sub} claim of the verified JWT) this local profile belongs to. */
+    @Column(name = "auth_user_id", nullable = false, unique = true)
+    private UUID authUserId;
+
     @Column(nullable = false, length = 150)
     private String name;
 
     @Column(nullable = false, unique = true, length = 200)
     private String email;
-
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

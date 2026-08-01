@@ -1,59 +1,29 @@
 package com.talentiq.security;
 
-import com.talentiq.entity.User;
+import com.talentiq.entity.enums.Role;
 import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.UUID;
 
+/**
+ * The authenticated principal for a request, derived from a verified Supabase Auth JWT and the
+ * corresponding local {@code User} row (auto-provisioned on first sign-in — see
+ * {@link SupabaseJwtAuthConverter}).
+ */
 @Getter
-public class AppUserPrincipal implements UserDetails {
+public class AppUserPrincipal {
 
-    private final User user;
+    private final Long userId;
+    private final UUID authUserId;
+    private final String email;
+    private final String name;
+    private final Role role;
 
-    public AppUserPrincipal(User user) {
-        this.user = user;
-    }
-
-    public Long getUserId() {
-        return user.getId();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return user.getPasswordHash();
-    }
-
-    @Override
-    public String getUsername() {
-        return user.getEmail();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public AppUserPrincipal(Long userId, UUID authUserId, String email, String name, Role role) {
+        this.userId = userId;
+        this.authUserId = authUserId;
+        this.email = email;
+        this.name = name;
+        this.role = role;
     }
 }

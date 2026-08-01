@@ -1,48 +1,73 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as authApi from '../api/auth';
+import { supabase } from '../api/supabaseClient';
+import { getMe } from '../api/auth';
 import { setUnauthorizedHandler } from '../api/client';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('talentiq_user');
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const persist = (userObj, token) => {
-    localStorage.setItem('talentiq_user', JSON.stringify(userObj));
-    if (token) localStorage.setItem('talentiq_token', token);
-    setUser(userObj);
-  };
-
-  const login = useCallback(async (email, password) => {
-    setLoading(true);
+  const loadAppUser = useCallback(async () => {
     try {
-      const data = await authApi.login({ email, password });
-      const userObj = { id: data.id, name: data.name, email: data.email, role: data.role };
-      persist(userObj, data.token);
-      return userObj;
-    } finally {
-      setLoading(false);
+      const appUser = await getMe();
+      setUser(appUser);
+      return appUser;
+    } catch (err) {
+      setUser(null);
+      return null;
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('talentiq_user');
-    localStorage.removeItem('talentiq_token');
-    setUser(null);
-    navigate('/login');
-  }, [navigate]);
+  useEffect(() => {
+    let mounted = true;
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data?.session) {
+        await loadAppUser();
+      }
+      if (mounted) setLoading(false);
+    });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription?.subscription?.unsubscribe();
+    };
+  }, [loadAppUser]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
+      supabase.auth.signOut();
       setUser(null);
       navigate('/login');
     });
+  }, [navigate]);
+
+  const login = useCallback(async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      throw { friendlyMessage: error.message };
+    }
+    const appUser = await loadAppUser();
+    if (!appUser) {
+      throw { friendlyMessage: 'Signed in, but could not load your account. Please try again.' };
+    }
+    return appUser;
+  }, [loadAppUser]);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    navigate('/login');
   }, [navigate]);
 
   const homeRoute = () => '/dashboard';

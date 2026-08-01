@@ -1,40 +1,21 @@
 version: "3.9"
 
-services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: talentiq-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-talentiq}
-      POSTGRES_USER: ${POSTGRES_USER:-talentiq}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-talentiq}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-talentiq} -d ${POSTGRES_DB:-talentiq}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    networks:
-      - talentiq-net
+# Local dev stack — backend and frontend containers only. The database and auth are Supabase
+# (hosted), not run locally. Point SPRING_DATASOURCE_* and SUPABASE_* at your Supabase project
+# via .env (see .env.example).
 
+services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: talentiq-backend
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-talentiq}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-talentiq}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-talentiq}
-      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-long-random-string-in-production-please}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SUPABASE_URL: ${SUPABASE_URL}
       APP_CORS_ORIGIN: ${APP_CORS_ORIGIN:-http://localhost:5173,http://localhost}
       SERVER_PORT: ${SERVER_PORT:-8080}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
@@ -50,6 +31,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     container_name: talentiq-frontend
     restart: unless-stopped
     depends_on:
@@ -59,27 +43,9 @@ services:
     networks:
       - talentiq-net
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: talentiq-pgadmin
-    restart: unless-stopped
-    depends_on:
-      - postgres
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@talentiq.ai}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    networks:
-      - talentiq-net
-
 networks:
   talentiq-net:
     driver: bridge
 
 volumes:
-  pgdata:
-  pgadmin-data:
   resume-uploads:

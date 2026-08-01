@@ -1,16 +1,14 @@
 package com.talentiq.controller;
 
-import com.talentiq.dto.request.LoginRequest;
-import com.talentiq.dto.response.AuthResponse;
 import com.talentiq.dto.response.UserResponse;
 import com.talentiq.security.AppUserPrincipal;
 import com.talentiq.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,13 +17,8 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
-    }
-
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal AppUserPrincipal principal) {
-        return ResponseEntity.ok(authService.getCurrentUser(principal.getUsername()));
+        return ResponseEntity.ok(authService.getCurrentUser(principal.getUserId()));
     }
 }

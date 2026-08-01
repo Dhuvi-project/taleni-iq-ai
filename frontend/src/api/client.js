@@ -1,12 +1,14 @@
 import axios from 'axios';
+import { supabase } from './supabaseClient';
 
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 30000,
 });
 
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('talentiq_token');
+client.interceptors.request.use(async (config) => {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -22,8 +24,6 @@ client.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('talentiq_token');
-      localStorage.removeItem('talentiq_user');
       if (onUnauthorized) onUnauthorized();
     }
     const message =

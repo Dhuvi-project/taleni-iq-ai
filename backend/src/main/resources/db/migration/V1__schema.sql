@@ -2,9 +2,9 @@
 
 CREATE TABLE users (
     id              BIGSERIAL PRIMARY KEY,
+    auth_user_id    UUID NOT NULL UNIQUE,
     name            VARCHAR(150) NOT NULL,
     email           VARCHAR(200) NOT NULL UNIQUE,
-    password_hash   VARCHAR(255) NOT NULL,
     role            VARCHAR(20) NOT NULL,
     headline        VARCHAR(200),
     experience_json TEXT,

@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 spring:
   application:
@@ -33,9 +33,9 @@ app:
     origin: ${APP_CORS_ORIGIN:http://localhost:5173,http://localhost}
   storage:
     path: ${APP_STORAGE_PATH:./uploads}
-  jwt:
-    secret: ${JWT_SECRET:dev-only-insecure-secret-key-please-override-in-prod-min-256-bits-long-value}
-    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  supabase:
+    jwks-uri: ${SUPABASE_JWKS_URI:${SUPABASE_URL:}/auth/v1/.well-known/jwks.json}
+    issuer: ${SUPABASE_ISSUER:${SUPABASE_URL:}/auth/v1}
   ai:
     groq:
       api-key: ${GROQ_API_KEY:}
