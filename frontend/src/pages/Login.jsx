@@ -7,7 +7,7 @@ import { Spinner } from '../components/Spinner';
 import './Auth.css';
 
 export default function Login() {
-  const { login, homeRoute } = useAuth();
+  const { login, homeRoute, wakingUp } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,6 +103,11 @@ export default function Login() {
             <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={submitting}>
               {submitting ? <Spinner size={18} /> : 'Sign in'}
             </button>
+            {submitting && wakingUp && (
+              <p className="subtitle text-secondary" style={{ marginTop: 12, textAlign: 'center' }}>
+                Waking up the server — this can take up to a minute on first sign-in.
+              </p>
+            )}
           </form>
         </div>
       </div>

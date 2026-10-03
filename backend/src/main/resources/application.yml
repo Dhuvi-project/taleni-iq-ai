@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: talentiq-backend
+  main:
+    lazy-initialization: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/talentiq}
     username: ${SPRING_DATASOURCE_USERNAME:talentiq}
@@ -41,7 +43,7 @@ app:
   ai:
     groq:
       api-key: ${GROQ_API_KEY:}
-      model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+      model: ${GROQ_MODEL:openai/gpt-oss-120b}
 
 springdoc:
   swagger-ui:

@@ -2,13 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../api/supabaseClient';
 import { getMe } from '../api/auth';
-import { setUnauthorizedHandler } from '../api/client';
+import { setUnauthorizedHandler, setWakingUpHandler } from '../api/client';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wakingUp, setWakingUp] = useState(false);
   const navigate = useNavigate();
 
   const loadAppUser = useCallback(async () => {
@@ -52,6 +53,12 @@ export function AuthProvider({ children }) {
     });
   }, [navigate]);
 
+  useEffect(() => {
+    setWakingUpHandler((attempt) => {
+      setWakingUp(attempt > 0);
+    });
+  }, []);
+
   const login = useCallback(async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -73,7 +80,7 @@ export function AuthProvider({ children }) {
   const homeRoute = () => '/dashboard';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, homeRoute }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, homeRoute, wakingUp }}>
       {children}
     </AuthContext.Provider>
   );
