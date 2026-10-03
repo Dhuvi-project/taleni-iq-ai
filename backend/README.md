@@ -46,7 +46,7 @@ The API will be available at `http://localhost:8080/api`, and Swagger UI at
 | Variable | Default | Description |
 |---|---|---|
 | `GROQ_API_KEY` | *(none — required)* | Groq API key powering every AI feature (resume analysis, matching, interview generation, skill gap, recommended jobs, chat assistant). Get a **free** key (no credit card required) from the [Groq console](https://console.groq.com/keys). The app **fails fast at startup** with a clear error if this is unset or blank. |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Groq model name used for `chat/completions` calls |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq model name used for `chat/completions` calls |
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/talentiq` | JDBC URL |
 | `SPRING_DATASOURCE_USERNAME` | `talentiq` | DB username |
 | `SPRING_DATASOURCE_PASSWORD` | `talentiq` | DB password |
